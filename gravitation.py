@@ -20,7 +20,8 @@ class Planet:
         self.m = m
 
         self.r = 5 * sqrt(m)
-        self.trace = [[], []]
+        self.trace_x = [x0]
+        self.trace_y = [x1]
         self.color = 'blue'
 
 
@@ -42,7 +43,8 @@ class Space:
     planets = []
     G = 1.0
     dt = 0.1
-    n_trace = 50
+    n_trace = 25
+    time = 0.0
 
     def __init__(self, inp_fname='setup.txt'):
         cols = list(colors.CSS4_COLORS.keys())
@@ -61,6 +63,7 @@ class Space:
 
 
     def make_iteration(self):
+        self.time += self.dt
         self.__calculate_acceleration()
         self.__calculate_position()
         self.__calculate_velocity()
@@ -105,10 +108,8 @@ class Space:
         for p in self.planets:
             p.x += p.v * self.dt + p.a * (self.dt**2) / 2
             
-            for j in range(2):
-                p.trace[j].append(p.x[j])
-                if len(p.trace[j]) >= self.n_trace: 
-                    p.trace[j] = p.trace[j][1:]
+            p.trace_x.append(p.x[0])
+            p.trace_y.append(p.x[1])
 
 
     def init_animation(self):
@@ -132,15 +133,14 @@ class Space:
 
             ax.arrow(p.x[0], p.x[1], p.v[0], p.v[1], color='black', zorder=3)
 
-            points = np.array(p.trace).T.reshape(-1, 1, 2)
+            points = np.array([p.trace_x[-self.n_trace:], p.trace_y[-self.n_trace:]]).T.reshape(-1, 1, 2)
             segments = np.concatenate([points[:-1], points[1:]], axis=1)
             
             lwidths = np.geomspace(1, 3, self.n_trace-1)
             lc = LineCollection(segments, linewidths=lwidths, color=p.color)
             ax.add_collection(lc)
 
-        dd = self.planets[-1].distance(self.planets[-2])
-        ax.text(7, 9, 'd=%.2f'%(dd))
+        ax.annotate('t=%.2f'%(self.time), xy=(0, 1), xytext=(12, -12), va='top', xycoords='axes fraction', textcoords='offset points')
         
 
 
