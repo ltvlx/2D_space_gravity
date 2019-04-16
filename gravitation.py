@@ -1,14 +1,14 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import animation, colors
-from matplotlib.collections import LineCollection
+# from matplotlib.collections import LineCollection
 from numpy import pi, sqrt
 from itertools import combinations
 import codecs
 import random
 random.seed(0)
 
-
+plt.style.use('dark_background')
 fig, ax = plt.subplots(figsize=(6,6))
 
 
@@ -42,7 +42,7 @@ class Planet:
 class Space:
     planets = []
     G = 1.0
-    dt = 0.1
+    dt = 0.01
     n_trace = 25
     time = 0.0
 
@@ -121,24 +121,26 @@ class Space:
 
     def animate_iteration(self, t):
         ax.cla()
-        ax.set_xlim(-10, 10)
-        ax.set_ylim(-10, 50)
+        ax.set_xlim(-10, 120)
+        ax.set_ylim(-120, 120)
 
-        # for _ in range(100):
-        self.make_iteration()
+        for _ in range(30):
+            self.make_iteration()
 
 
         for p in self.planets:
-            ax.plot(p.x[0], p.x[1], 'o', color=p.color, markersize=p.r)
+            ax.plot(p.x[0], p.x[1], 'o', color=p.color, markersize=p.r, zorder=2)
 
-            ax.arrow(p.x[0], p.x[1], p.v[0], p.v[1], color='black', zorder=3)
+            ax.arrow(p.x[0], p.x[1], p.v[0], p.v[1], color='white', zorder=3)
 
-            points = np.array([p.trace_x[-self.n_trace:], p.trace_y[-self.n_trace:]]).T.reshape(-1, 1, 2)
-            segments = np.concatenate([points[:-1], points[1:]], axis=1)
+            ax.plot(p.trace_x, p.trace_y, '--', color=p.color, linewidth=1, zorder=1)
+
+            # points = np.array([p.trace_x[-self.n_trace:], p.trace_y[-self.n_trace:]]).T.reshape(-1, 1, 2)
+            # segments = np.concatenate([points[:-1], points[1:]], axis=1)
             
-            lwidths = np.geomspace(1, 3, self.n_trace-1)
-            lc = LineCollection(segments, linewidths=lwidths, color=p.color)
-            ax.add_collection(lc)
+            # lwidths = np.geomspace(1, 3, self.n_trace-1)
+            # lc = LineCollection(segments, linewidths=lwidths, color=p.color)
+            # ax.add_collection(lc)
 
         ax.annotate('t=%.2f'%(self.time), xy=(0, 1), xytext=(12, -12), va='top', xycoords='axes fraction', textcoords='offset points')
         
@@ -149,7 +151,7 @@ A = Space()
 
 
 
-anim = animation.FuncAnimation(fig, A.animate_iteration, init_func=A.init_animation, frames=2000, interval=60)
+anim = animation.FuncAnimation(fig, A.animate_iteration, init_func=A.init_animation, frames=500, interval=60)
 plt.show()
 
 
